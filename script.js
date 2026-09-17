@@ -1,9 +1,8 @@
 // Temporary calls
-startCountdown(format("09/22/12/15"), format("09/22/13/30"), 'header-countdown', 'countdown-pre', 'Flight 14');
-startCountdown(format("09/17/01/00"), format("09/17/05/43"), 'header-countdown-2', 'countdown-pre-2', '(F9) USSF-259');
-startCountdown(format("09/20/01/47"), format("09/20/06/30"), 'header-countdown-3', 'countdown-pre-3', '(F9) Starlink 15-27');
-startCountdown(format("09/26/11/56"), format("09/26/15/39"), 'header-countdown-4', 'countdown-pre-4', '(F9) USSF-385');
-const carouselIDS = ['r1', 'r2', 'r3', 'r4'];
+startCountdown(format("09/22/12/15"), format("09/22/13/30"), 'hc', 'pc', 'Flight 14');
+startCountdown(format("09/20/01/47"), format("09/20/06/30"), 'hc-s1527', 'pc-s1527', '(F9) Starlink 15-27');
+startCountdown(format("09/26/11/56"), format("09/26/15/39"), 'hc-ussf385', 'pc-ussf385', '(F9) USSF-385');
+const carouselIDS = ['r1', 'r2', 'r3'];
 const carouselTimer = setInterval(() => carousel(carouselIDS), 5000);
 
 // Dedicated Starship flight countdown
