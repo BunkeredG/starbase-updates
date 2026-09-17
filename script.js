@@ -1,14 +1,16 @@
+// Dedicated Starship flight countdown
+const starship_open = format("09/28/12/15");
+const starship_close = format("09/28/13/30");
+if (document.getElementById('starship')) {
+    startCountdown(starship_open, starship_close, 'starship');
+}
+
 // Temporary calls
-startCountdown(format("09/22/12/15"), format("09/22/13/30"), 'hc', 'pc', 'Flight 14');
+startCountdown(starship_open, starship_close, 'hc', 'pc', 'Flight 14');
 startCountdown(format("09/20/01/47"), format("09/20/06/30"), 'hc-s1527', 'pc-s1527', '(F9) Starlink 15-27');
 startCountdown(format("09/26/11/56"), format("09/26/15/39"), 'hc-ussf385', 'pc-ussf385', '(F9) USSF-385');
 const carouselIDS = ['r1', 'r2', 'r3'];
 const carouselTimer = setInterval(() => carousel(carouselIDS), 5000);
-
-// Dedicated Starship flight countdown
-if (document.getElementById('starship')) {
-    startCountdown(format("09/22/12/15"), format("09/22/13/30"), 'starship');
-}
 
 // Date converter (MM/DD/HH/mm in UTC)
 function format(date) {
