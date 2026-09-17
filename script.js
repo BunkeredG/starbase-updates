@@ -1,3 +1,36 @@
+// Temporary calls
+startCountdown(format("09/22/12/15"), format("09/22/13/30"), 'header-countdown', 'countdown-pre', 'Flight 14');
+startCountdown(format("09/17/01/00"), format("09/17/05/43"), 'header-countdown-2', 'countdown-pre-2', '(F9) USSF-259');
+startCountdown(format("09/20/01/47"), format("09/20/06/30"), 'header-countdown-3', 'countdown-pre-3', '(F9) Starlink 15-27');
+startCountdown(format("09/26/11/56"), format("09/26/15/39"), 'header-countdown-4', 'countdown-pre-4', '(F9) USSF-385');
+const carouselIDS = ['r1', 'r2', 'r3', 'r4'];
+const carouselTimer = setInterval(() => carousel(carouselIDS), 5000);
+
+// Dedicated Starship flight countdown
+if (document.getElementById('starship')) {
+    startCountdown(format("09/22/12/15"), format("09/22/13/30"), 'starship');
+}
+
+// Date converter (MM/DD/HH/mm in UTC)
+function format(date) {
+    // [0] -> month | [1] -> day | [2] -> hour | [3] -> minute
+    const dateL = date.split('/');
+    return `2026-${dateL[0]}-${dateL[1]}T${dateL[2]}:${dateL[3]}:00Z`;
+}
+
+
+// Hide notifications button for iOS users
+function isIOS() {
+    const ua = navigator.userAgent;
+    const isAppleMobile = /iPhone|iPad/.test(ua);
+    const isModernIPad = ua.includes('Mac') && navigator.maxTouchPoints > 1;
+    return isAppleMobile || isModernIPad;
+}
+
+if (isIOS() && document.getElementById('permissions')) {
+    document.getElementById('permissions').style.display = 'none';
+}
+
 // Scroll when opening <details>
 document.querySelectorAll('details').forEach(function(details) {
   details.addEventListener('toggle', function() {
@@ -38,7 +71,7 @@ if (permsButton) {
         } else {
             Notification.requestPermission().then(permission => {
                 if (permission === 'granted') {
-                    fetch('update.json', {cache: 'no-store'}).then(response => response.json()).then(data => {
+                    fetch('notification.json', {cache: 'no-store'}).then(response => response.json()).then(data => {
                         localStorage.setItem('subscribed', 'true');
                         localStorage.setItem('lastSeenUpdate', data.id);
                         new Notification('Subscribed!', {body: "Leave this site open to get updates as soon as they're published"});
@@ -52,7 +85,7 @@ if (permsButton) {
 
 // Check for notification update
 function checkForUpdate() {
-    fetch('update.json', {cache: 'no-store'}).then(response => response.json()).then(data => {
+    fetch('notification.json', {cache: 'no-store'}).then(response => response.json()).then(data => {
         const lastSeenID = localStorage.getItem('lastSeenUpdate');
 
         if (lastSeenID !== data.id) {
@@ -64,74 +97,98 @@ function checkForUpdate() {
     });
 }
 checkForUpdate();
-setInterval(checkForUpdate, 60000);
+setInterval(checkForUpdate, 30000);
 
-// Countdown to launch
-const windowOpen = new Date("2026-09-22T07:15:00-05:00");
-const windowClose = new Date("2026-09-22T09:14:00-05:00");
-const notifyKey = windowOpen.toISOString();
+// Header fade
+const fixedHeader = document.querySelector('.fixed-header');
 
-function updateCountdown() {
-    const now = new Date();
-    const openDiff = windowOpen - now;
-    const closeDiff = windowClose - now;
-
-    if (localStorage.getItem('closeNotify-' + notifyKey) === 'true') {
-        clearInterval(timer);
-        return;
-    }
-
-    if (closeDiff < 0) {
-        document.getElementById('launchTimer').textContent = "(Window Closed)";
-        
-        if (localStorage.getItem('closeNotify-' + notifyKey) !== 'true' && localStorage.getItem('subscribed') === 'true' && Notification.permission === 'granted') {
-            new Notification('Starbase Updates', {body: "Launch window is closed"});
-            localStorage.setItem('closeNotify-' + notifyKey, 'true');
-        }
-
-        clearInterval(timer);
-        return;
-    }
-
-    if (openDiff < 0) {
-        if (localStorage.getItem('openNotify-' + notifyKey) !== 'true' && localStorage.getItem('subscribed') === 'true' && Notification.permission === 'granted') {
-            new Notification('Starbase Updates', {body: "Launch window is open!"});
-            localStorage.setItem('openNotify-' + notifyKey, 'true');
-        }
-    }
-
-    if (openDiff - (1000 * 60 * 10) < 0) {
-        if (localStorage.getItem('10minNotify-' + notifyKey) !== 'true' && localStorage.getItem('subscribed') === 'true' && Notification.permission === 'granted') {
-            new Notification('Starbase Updates', {body: "Launch window opens in 10 minutes!"});
-            localStorage.setItem('10minNotify-' + notifyKey, 'true');
-        }
-    }
-
-    if (openDiff - (1000 * 60 * 60) < 0) {
-        if (localStorage.getItem('1hrNotify-' + notifyKey) !== 'true' && localStorage.getItem('subscribed') === 'true' && Notification.permission === 'granted') {
-            new Notification('Starbase Updates', {body: "Launch window opens in 1 hour!"});
-            localStorage.setItem('1hrNotify-' + notifyKey, 'true');
-        }
-    }
-
-    let diff;
-    let preM;
-
-    if (openDiff >= 0) {
-        diff = openDiff;
-        preM = "";
+function toggleFixedHeader() {
+    if (window.scrollY > 100) {
+        fixedHeader.classList.add('visible');
     } else {
-        diff = closeDiff;
-        preM = "Window Open for ";
+        fixedHeader.classList.remove('visible');
     }
-
-    const days = String(Math.floor(diff / (1000 * 60 * 60 * 24))).padStart(2, '0');
-    const hours = String(Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
-    const minutes = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
-    const seconds = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0');
-
-    document.getElementById('launchTimer').textContent = `(${preM}${days}:${hours}:${minutes}:${seconds})`;
 }
 
-updateCountdown();
-const timer = setInterval(updateCountdown, 1000);
+toggleFixedHeader();
+window.addEventListener('scroll', toggleFixedHeader);
+
+// Countdown to launch
+function startCountdown(openDate, closeDate, id, preid=null, prem=null) {
+    const windowOpen = new Date(openDate);
+    const windowClose = new Date(closeDate);
+    const notifyKey = windowOpen.toISOString();
+    let timer;
+
+    function updateCountdown() {
+        const now = new Date();
+        const openDiff = windowOpen - now;
+        const closeDiff = windowClose - now;
+        let diff;
+
+        if (localStorage.getItem('closeNotify-' + notifyKey) === 'true') {
+            if (prem) {
+                document.getElementById(preid).textContent = `${prem}`;
+            }
+            document.getElementById(id).textContent = "(Window Closed)";
+            document.getElementById(id).style.color = 'rgb(228, 17, 17)'
+            clearInterval(timer);
+            return;
+        }
+
+        if (closeDiff < 0) {
+            if (prem && localStorage.getItem('closeNotify-' + notifyKey) !== 'true' && localStorage.getItem('subscribed') === 'true' && Notification.permission === 'granted') {
+                new Notification('Starbase Updates', {body: `Launch window for ${prem} is closed`});
+                localStorage.setItem('closeNotify-' + notifyKey, 'true');
+            }
+        }
+
+        if (openDiff < 0) {
+            if (prem && localStorage.getItem('openNotify-' + notifyKey) !== 'true' && localStorage.getItem('subscribed') === 'true' && Notification.permission === 'granted') {
+                new Notification('Starbase Updates', {body: `Launch window for ${prem} is open!`});
+                localStorage.setItem('openNotify-' + notifyKey, 'true');
+            }
+
+            diff = closeDiff;
+            document.getElementById(id).style.color = 'rgb(19, 159, 24)';
+        }
+
+        if (openDiff - (1000 * 60 * 10) < 0) {
+            if (prem && localStorage.getItem('10minNotify-' + notifyKey) !== 'true' && localStorage.getItem('subscribed') === 'true' && Notification.permission === 'granted') {
+                new Notification('Starbase Updates', {body: `Launch window for ${prem} opens in 10 minutes!`});
+                localStorage.setItem('10minNotify-' + notifyKey, 'true');
+            }
+        }
+
+        if (openDiff > 0) {
+            diff = openDiff;
+            document.getElementById(id).style.color = '';
+        }
+
+        const days = String(Math.floor(diff / (1000 * 60 * 60 * 24))).padStart(2, '0');
+        const hours = String(Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+        const minutes = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+        const seconds = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0');
+
+        if (prem) {
+            document.getElementById(preid).textContent = `${prem}`;
+            document.getElementById(id).textContent = `${days}:${hours}:${minutes}:${seconds}`;
+        } else {
+            document.getElementById(id).textContent = `(${days}:${hours}:${minutes}:${seconds})`;
+        }
+    }
+
+    updateCountdown();
+    timer = setInterval(updateCountdown, 1000);
+}
+
+// Launch carousel
+let carouselIndex = 0;
+function carousel(ids) {
+    const currentID = ids[carouselIndex];
+    carouselIndex = (carouselIndex + 1) % ids.length;
+    const nextID = ids[carouselIndex];
+
+    document.getElementById(currentID).classList.remove('visible');
+    document.getElementById(nextID).classList.add('visible');
+}
