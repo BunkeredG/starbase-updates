@@ -2,15 +2,8 @@
 const starship_open = format("09/28/12/15");
 const starship_close = format("09/28/13/30");
 if (document.getElementById('starship')) {
-    startCountdown(starship_open, starship_close, 'starship');
+    startCountdownFixed(starship_open, starship_close, 'starship');
 }
-
-// Temporary calls
-startCountdown(starship_open, starship_close, 'hc', 'pc', 'Flight 14');
-startCountdown(format("09/20/01/47"), format("09/20/06/30"), 'hc-s1527', 'pc-s1527', '(F9) Starlink 15-27');
-startCountdown(format("09/26/11/56"), format("09/26/15/39"), 'hc-ussf385', 'pc-ussf385', '(F9) USSF-385');
-const carouselIDS = ['r1', 'r2', 'r3'];
-const carouselTimer = setInterval(() => carousel(carouselIDS), 5000);
 
 // Date converter (MM/DD/HH/mm in UTC)
 function format(date) {
@@ -19,6 +12,88 @@ function format(date) {
     return `2026-${dateL[0]}-${dateL[1]}T${dateL[2]}:${dateL[3]}:00Z`;
 }
 
+// Carousel setup
+let show1 = true;
+let carouselPick = 0;
+const activeTimers = {};
+let carouselData;
+
+function checkForLaunchUpdates() {
+    fetch('launches.json', {cache: 'no-store'}).then(response => response.json()).then(data => {
+        carouselData = data;
+        carousel(carouselData, "id1", "id2");
+    });
+}
+checkForLaunchUpdates()
+setInterval(checkForLaunchUpdates, 60000)
+
+// Carousel logic
+const carouselTimer = setInterval(() => carousel(carouselData, "id1", "id2"), 5000);
+
+function carousel(data, id1, id2) {
+    let current = data[carouselPick % data.length];
+    if (show1) {
+        document.getElementById(id1).classList.add('visible');
+        document.getElementById(id2).classList.remove('visible');
+        startCountdown(current[0], current[1], id1, current[2]);
+    } else {
+        document.getElementById(id2).classList.add('visible');
+        document.getElementById(id1).classList.remove('visible');
+        startCountdown(current[0], current[1], id2, current[2]);
+    }
+
+    show1 = !show1
+    carouselPick++;
+}
+
+let closureData;
+
+function checkForClosureUpdates() {
+    fetch('closures.json', {cache: 'no-store'}).then(response => response.json()).then(data => {
+        closureData = data;
+        document.getElementById('closures').innerHTML = '';
+        const [beachClosures, roadClosures] = closureData
+
+        if (beachClosures[0] !== "No beach closures") {
+            createBeachClosures(closureData[0]);
+        }
+        if (roadClosures[0] !== "No road closures") {
+            createRoadClosures(closureData[1]);
+        }
+        if (beachClosures[0] === "No beach closures" && roadClosures[0] == "No road closures") {
+            document.getElementById('closures').innerHTML = `<h3 class="launch">No planned closures</h3>`
+        }
+    });
+}
+
+if (document.getElementById('closures')) {
+    checkForClosureUpdates()
+    setInterval(checkForClosureUpdates, 60000)
+}
+
+function createRoadClosures(datalist) {
+    for (const item of datalist) {
+        const closureHTML = `
+        <details>
+        <summary class="dropdown-hover">Road Closure (${item[0]})</summary>
+        <pre><b>DATE</b> - ${item[1]}</pre>
+        </details>
+        `
+        document.getElementById('closures').insertAdjacentHTML('beforeend', closureHTML)
+    }
+}
+
+function createBeachClosures(datalist) {
+    for (const item of datalist) {
+        const closureHTML = `
+        <details>
+        <summary class="dropdown-hover beach-closure">Beach Closure</summary>
+        <pre><b>DATE</b> - ${item}</pre>
+        </details>
+        `
+        document.getElementById('closures').insertAdjacentHTML('beforeend', closureHTML)
+    }
+}
 
 // Hide notifications button for iOS users
 function isIOS() {
@@ -115,10 +190,9 @@ toggleFixedHeader();
 window.addEventListener('scroll', toggleFixedHeader);
 
 // Countdown to launch
-function startCountdown(openDate, closeDate, id, preid=null, prem=null) {
+function startCountdownFixed(openDate, closeDate, id) {
     const windowOpen = new Date(openDate);
     const windowClose = new Date(closeDate);
-    const notifyKey = windowOpen.toISOString();
     let timer;
 
     function updateCountdown() {
@@ -127,38 +201,16 @@ function startCountdown(openDate, closeDate, id, preid=null, prem=null) {
         const closeDiff = windowClose - now;
         let diff;
 
-        if (localStorage.getItem('closeNotify-' + notifyKey) === 'true') {
-            if (prem) {
-                document.getElementById(preid).textContent = `${prem}`;
-            }
+        if (closeDiff < 0) {
             document.getElementById(id).textContent = "(Window Closed)";
             document.getElementById(id).style.color = 'rgb(228, 17, 17)'
             clearInterval(timer);
             return;
         }
 
-        if (closeDiff < 0) {
-            if (prem && localStorage.getItem('closeNotify-' + notifyKey) !== 'true' && localStorage.getItem('subscribed') === 'true' && Notification.permission === 'granted') {
-                new Notification('Starbase Updates', {body: `Launch window for ${prem} is closed`});
-                localStorage.setItem('closeNotify-' + notifyKey, 'true');
-            }
-        }
-
         if (openDiff < 0) {
-            if (prem && localStorage.getItem('openNotify-' + notifyKey) !== 'true' && localStorage.getItem('subscribed') === 'true' && Notification.permission === 'granted') {
-                new Notification('Starbase Updates', {body: `Launch window for ${prem} is open!`});
-                localStorage.setItem('openNotify-' + notifyKey, 'true');
-            }
-
             diff = closeDiff;
             document.getElementById(id).style.color = 'rgb(19, 159, 24)';
-        }
-
-        if (openDiff - (1000 * 60 * 10) < 0) {
-            if (prem && localStorage.getItem('10minNotify-' + notifyKey) !== 'true' && localStorage.getItem('subscribed') === 'true' && Notification.permission === 'granted') {
-                new Notification('Starbase Updates', {body: `Launch window for ${prem} opens in 10 minutes!`});
-                localStorage.setItem('10minNotify-' + notifyKey, 'true');
-            }
         }
 
         if (openDiff > 0) {
@@ -171,25 +223,74 @@ function startCountdown(openDate, closeDate, id, preid=null, prem=null) {
         const minutes = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
         const seconds = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0');
 
-        if (prem) {
-            document.getElementById(preid).textContent = `${prem}`;
-            document.getElementById(id).textContent = `${days}:${hours}:${minutes}:${seconds}`;
-        } else {
-            document.getElementById(id).textContent = `(${days}:${hours}:${minutes}:${seconds})`;
-        }
+        document.getElementById(id).textContent = `(${days}:${hours}:${minutes}:${seconds})`;
     }
 
     updateCountdown();
     timer = setInterval(updateCountdown, 1000);
 }
 
-// Launch carousel
-let carouselIndex = 0;
-function carousel(ids) {
-    const currentID = ids[carouselIndex];
-    carouselIndex = (carouselIndex + 1) % ids.length;
-    const nextID = ids[carouselIndex];
+// Countdown to launch in carousel
+function startCountdown(openDate, closeDate, id, name) {
+    if (activeTimers[id]) {
+        clearInterval(activeTimers[id]);
+    }
 
-    document.getElementById(currentID).classList.remove('visible');
-    document.getElementById(nextID).classList.add('visible');
+    const windowOpen = new Date(openDate);
+    const windowClose = new Date(closeDate);
+    const notifyKey = windowOpen.toISOString();
+
+    function updateCountdown() {
+        const now = new Date();
+        const openDiff = windowOpen - now;
+        const closeDiff = windowClose - now;
+        let diff;
+
+        if (closeDiff < 0) {
+            if (localStorage.getItem('closeNotify-' + notifyKey) !== 'true' && localStorage.getItem('subscribed') === 'true' && Notification.permission === 'granted') {
+                new Notification('Starbase Updates', {body: `Launch window for ${name} is closed`});
+                localStorage.setItem('closeNotify-' + notifyKey, 'true');
+            }
+
+            document.getElementById(id).innerHTML = `${name}:<br><span class="countdown">(Window Closed)</span>`;
+            document.querySelector(`#${id} .countdown`).style.color = 'rgb(228, 17, 17)';
+            
+            clearInterval(activeTimers[id]);
+            return;
+
+        } else if (openDiff < 0) {
+            if (localStorage.getItem('openNotify-' + notifyKey) !== 'true' && localStorage.getItem('subscribed') === 'true' && Notification.permission === 'granted') {
+                new Notification('Starbase Updates', {body: `Launch window for ${name} is open!`});
+                localStorage.setItem('openNotify-' + notifyKey, 'true');
+            }
+
+            diff = closeDiff;
+        } else {
+            if (openDiff - (1000 * 60 * 10) < 0) {
+                if (localStorage.getItem('10minNotify-' + notifyKey) !== 'true' && localStorage.getItem('subscribed') === 'true' && Notification.permission === 'granted') {
+                    new Notification('Starbase Updates', {body: `Launch window for ${name} opens in 10 minutes!`});
+                    localStorage.setItem('10minNotify-' + notifyKey, 'true');
+                }
+            }
+
+            diff = openDiff;
+        }
+
+        const days = String(Math.floor(diff / (1000 * 60 * 60 * 24))).padStart(2, '0');
+        const hours = String(Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+        const minutes = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+        const seconds = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0');
+
+        document.getElementById(id).innerHTML = `${name}:<br><span class="countdown">${days}:${hours}:${minutes}:${seconds}</span>`;
+
+        const countdown = document.querySelector(`#${id} .countdown`);
+        if (openDiff < 0) {
+            countdown.style.color = "rgb(19, 159, 24)";
+        } else {
+            countdown.style.color = "";
+        }
+    }
+
+    updateCountdown();
+    activeTimers[id] = setInterval(updateCountdown, 1000);
 }
