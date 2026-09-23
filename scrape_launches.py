@@ -18,21 +18,31 @@ def formatDate(month, day, hour, min):
 textL = text_orig.split("\n")
 carousel_data = []
 for i, line in enumerate(textL):
-    if "SPACEX" in line and "REENTRY" not in line:
+    if ("SPACEX" in line or "TRANSPORTER" in line) and "REENTRY" not in line:
         print(line)
-        match = re.search(r'SPACEX ([^,]+),', line)
-        mission = match.group(1)
+        if "SPACEX" in line:
+            match = re.search(r'SPACEX ([^,]+),', line)
+            mission = match.group(1)
 
-        if "STARSHIP" in mission:
-            flight_num = re.sub(r'[^0-9]', '', mission)
-            mission = f"Flight {flight_num}"
-        else:
-            if ' ' in mission:
-                word, number = mission.split(' ', 1)
-                if number.isalpha():
-                    mission = f"{word.capitalize()} {number.capitalize()}"
-                else:
-                    mission = f"{word.capitalize()} {number}"
+            if "STARSHIP" in mission:
+                flight_num = re.sub(r'[^0-9]', '', mission)
+                mission = f"Flight {flight_num}"
+            else:
+                if ' ' in mission:
+                    word, number = mission.split(' ', 1)
+                    if word != "NASA":
+                        if number.isalpha():
+                            mission = f"{word.capitalize()} {number.capitalize()}"
+                        else:
+                            mission = f"{word.capitalize()} {number}"
+                    else:
+                        mission = f"{word} {number.capitalize()}"
+
+        elif "TRANSPORTER" in line:
+            match = re.search(r'([^,]+),', line)
+            mission = match.group(1)
+            word, number = mission.split('-')
+            mission = f"{word.capitalize()}-{number}"
 
         text_split = textL[i+1].split("\t")
         date_split = text_split[1].split("/")
