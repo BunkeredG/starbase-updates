@@ -155,6 +155,14 @@ summary:hover {
     scale: 1.05;
 }
 
+.mayor-order {
+    color: #e8258a;
+}
+
+.mayor-order:hover {
+    color: #eb52a1;
+}
+
 .beach-closure {
     color: #d73cbd;
 }
@@ -213,7 +221,7 @@ b {
 }
 
 .firstdiv {
-    margin-top: 20px;
+    margin-top: 50px;
 }
 
 div {

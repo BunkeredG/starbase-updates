@@ -48,27 +48,51 @@ function carousel(data, id1, id2) {
 
 let closureData;
 
+// Closure logic
 function checkForClosureUpdates() {
     fetch('closures.json', {cache: 'no-store'}).then(response => response.json()).then(data => {
         closureData = data;
         document.getElementById('closures').innerHTML = '';
-        const [beachClosures, roadClosures] = closureData
+        const [beachClosures, roadClosures, mayorOrder] = closureData
 
+        if (mayorOrder[0] !== "None") {
+            createMayorOrder(closureData[2])
+        }
         if (beachClosures[0] !== "No beach closures") {
             createBeachClosures(closureData[0]);
         }
         if (roadClosures[0] !== "No road closures") {
             createRoadClosures(closureData[1]);
         }
-        if (beachClosures[0] === "No beach closures" && roadClosures[0] == "No road closures") {
-            document.getElementById('closures').innerHTML = `<h3 class="launch">No planned closures</h3>`
+        if (beachClosures[0] === "No beach closures" && roadClosures[0] == "No road closures" && mayorOrder[0] == "None") {
+            document.getElementById('closures').innerHTML = `<h3 class="launch">No planned closures</h3>`;
+        }
+
+        if (localStorage.getItem('lastSeenClosure') !== closureData.toString() && localStorage.getItem('subscribed')) {
+            new Notification('Starbase Updates', {body: "Closure update"});
+            localStorage.setItem('lastSeenClosure', closureData);
         }
     });
 }
 
 if (document.getElementById('closures')) {
     checkForClosureUpdates()
-    setInterval(checkForClosureUpdates, 60000)
+    setInterval(checkForClosureUpdates, 5000)
+}
+
+function createMayorOrder(datalist) {
+    for (const item of datalist) {
+        const closureHTML = `
+        <details>
+        <summary class="dropdown-hover mayor-order">Mayor's Order</summary>
+<pre>
+<b>DATE</b> - ${item}
+<b>PURPOSE</b> - Closure of road & beach access for the testing/launch of Starship
+</pre>
+        </details>
+        `
+        document.getElementById('closures').insertAdjacentHTML('beforeend', closureHTML);
+    }
 }
 
 function createRoadClosures(datalist) {
@@ -79,7 +103,7 @@ function createRoadClosures(datalist) {
         <pre><b>DATE</b> - ${item[1]}</pre>
         </details>
         `
-        document.getElementById('closures').insertAdjacentHTML('beforeend', closureHTML)
+        document.getElementById('closures').insertAdjacentHTML('beforeend', closureHTML);
     }
 }
 
@@ -91,7 +115,7 @@ function createBeachClosures(datalist) {
         <pre><b>DATE</b> - ${item}</pre>
         </details>
         `
-        document.getElementById('closures').insertAdjacentHTML('beforeend', closureHTML)
+        document.getElementById('closures').insertAdjacentHTML('beforeend', closureHTML);
     }
 }
 
