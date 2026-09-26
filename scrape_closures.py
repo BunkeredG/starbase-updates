@@ -25,7 +25,7 @@ else:
     beachInter = beach_text.split("Primary: ")[1:]
     for closure in beachInter:
         if "Backup:" in closure:
-            beach_re = re.search(r'(.*)Backup:', closure)
+            beach_re = re.search(r'(.*?)Backup:', closure)
             beachL.append(beach_re.group(1))
         else:
             beachL.append(closure)
