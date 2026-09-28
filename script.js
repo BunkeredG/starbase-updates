@@ -47,10 +47,15 @@ function carousel(data, id1, id2) {
 }
 
 let closureData;
+let lastJSON = '';
 
 // Closure logic
 function checkForClosureUpdates() {
     fetch('closures.json', {cache: 'no-store'}).then(response => response.json()).then(data => {
+        const newJSON = JSON.stringify(data);
+        if (newJSON === lastJSON) return;
+        lastJSON = newJSON;
+
         closureData = data;
         document.getElementById('closures').innerHTML = '';
         const [beachClosures, roadClosures, mayorOrder] = closureData
