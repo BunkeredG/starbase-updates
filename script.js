@@ -1,8 +1,7 @@
 // Dedicated Starship flight countdown
 const starship_open = format("09/28/12/15");
-const starship_close = format("09/28/13/30");
 if (document.getElementById('starship')) {
-    startCountdownFixed(starship_open, starship_close, 'starship');
+    startCountdownFixed(starship_open, 'starship');
 }
 
 // Date converter (MM/DD/HH/mm in UTC)
@@ -219,40 +218,37 @@ toggleFixedHeader();
 window.addEventListener('scroll', toggleFixedHeader);
 
 // Countdown to launch
-function startCountdownFixed(openDate, closeDate, id) {
+function startCountdownFixed(openDate, id) {
     const windowOpen = new Date(openDate);
-    const windowClose = new Date(closeDate);
     let timer;
 
     function updateCountdown() {
         const now = new Date();
         const openDiff = windowOpen - now;
-        const closeDiff = windowClose - now;
-        let diff;
-
-        if (closeDiff < 0) {
-            document.getElementById(id).textContent = "(Window Closed)";
-            document.getElementById(id).style.color = 'rgb(228, 17, 17)'
-            clearInterval(timer);
-            return;
-        }
 
         if (openDiff < 0) {
-            diff = closeDiff;
+            const elapsed = -openDiff
+
             document.getElementById(id).style.color = 'rgb(19, 159, 24)';
+
+            const days = String(Math.floor(elapsed / (1000 * 60 * 60 * 24))).padStart(2, '0');
+            const hours = String(Math.floor((elapsed % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+            const minutes = String(Math.floor((elapsed % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+            const seconds = String(Math.floor((elapsed % (1000 * 60)) / 1000)).padStart(2, '0');
+
+            document.getElementById(id).textContent = `(T+${days}:${hours}:${minutes}:${seconds})`;
         }
 
         if (openDiff > 0) {
-            diff = openDiff;
             document.getElementById(id).style.color = '';
+
+            const days = String(Math.floor(openDiff / (1000 * 60 * 60 * 24))).padStart(2, '0');
+            const hours = String(Math.floor((openDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+            const minutes = String(Math.floor((openDiff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+            const seconds = String(Math.floor((openDiff % (1000 * 60)) / 1000)).padStart(2, '0');
+
+            document.getElementById(id).textContent = `(T-${days}:${hours}:${minutes}:${seconds})`;
         }
-
-        const days = String(Math.floor(diff / (1000 * 60 * 60 * 24))).padStart(2, '0');
-        const hours = String(Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
-        const minutes = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
-        const seconds = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0');
-
-        document.getElementById(id).textContent = `(${days}:${hours}:${minutes}:${seconds})`;
     }
 
     updateCountdown();
