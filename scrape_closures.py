@@ -35,7 +35,7 @@ else:
         date_str = date_re.group(1)
         date_check = re.sub(r'[^0-9]', '', date_str)
 
-        if int(date_check) > int(now):
+        if int(date_check) >= int(now):
             mayorL.append(re_text)
 
 beach_match = re.search(r'BEACH Access Status(.+?)Road Updates', text)
