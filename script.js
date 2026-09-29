@@ -72,7 +72,7 @@ function checkForClosureUpdates() {
             document.getElementById('closures').innerHTML = `<h3 class="launch">No planned closures</h3>`;
         }
 
-        if (localStorage.getItem('lastSeenClosure') !== closureData.toString() && localStorage.getItem('subscribed')) {
+        if (localStorage.getItem('lastSeenClosure') !== closureData.toString() && localStorage.getItem('subscribed') === 'true') {
             new Notification('Starbase Updates', {body: "Closure update"});
             localStorage.setItem('lastSeenClosure', closureData);
         }
