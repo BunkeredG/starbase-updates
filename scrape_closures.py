@@ -26,7 +26,7 @@ for i in range(3):
     samples.append(get_page())
     print(samples[i][1])
     if i < 2:
-        time.sleep(20)
+        time.sleep(0.2)
 
 text_orig, text = samples[0]
 for orig, t in samples:
@@ -49,9 +49,13 @@ else:
         date_re = re.search(r'(.*) f', re_text)
         date_str = date_re.group(1)
         date_check = re.sub(r'[^0-9]', '', date_str)
+        alt_date_check = date_str.split("/")
 
-        if int(date_check) >= int(now):
+        if int(date_check) >= int(now) and int(alt_date_check[0]) >= int(datetime.now(timezone.utc).strftime('%-m')):
             mayorL.append(re_text)
+
+    if mayorL == []:
+        mayorL.append("None")
 
 beach_match = re.search(r'BEACH Access Status(.+?)Road Updates', text)
 beach_text = beach_match.group(1)
