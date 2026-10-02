@@ -36,6 +36,11 @@ h3 {
     margin-bottom: 0;
 }
 
+.centered-div h3 {
+    margin: 0;
+    padding-top: 10px;
+}
+
 .carousel {
     opacity: 0;
     visibility: hidden;
@@ -122,6 +127,13 @@ h3 {
     text-align: right;
     left: auto;
     right: 15px;
+}
+
+.sub-detail {
+    display: block;
+    color: rgb(75, 75, 75);
+    padding-top: 10px;
+    margin-block: 0;
 }
 
 img {
@@ -281,6 +293,12 @@ div {
 .p-small {
     color: rgb(75, 75, 75);
     font-size: 10px;
+    margin: 0;
+}
+
+.p-sub {
+    color: rgb(100, 100, 100);
+    font-size: 15px;
     margin: 0;
 }
 

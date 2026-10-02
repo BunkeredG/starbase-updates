@@ -79,7 +79,21 @@ if "Description" not in road_text:
 else:
     roadInter = road_text.split("Description: ")[1:]
     for closure in roadInter:
-        roadL.append(closure.split("Date: "))
+        closureL = closure.split("Date: ")
+        closureL[0] = "->".join(closureL[0].split("to")) # production -> masseys
+
+        # october 2nd
+        closureL[1] = closureL[1].split(" ")
+        for i, item in enumerate(closureL[1]):
+            if item.isnumeric():
+                if 10 <= int(item) % 100 <= 20:
+                    suffix = "th"
+                else:
+                    suffix = {1: "st", 2: "nd", 3: "rd"}.get(int(item) % 10, "th")
+                closureL[1][i] = f"{item}{suffix} at"
+        closureL[1] = " ".join(closureL[1])
+
+        roadL.append(closureL)
 
 closures = []
 closures.append(beachL)
