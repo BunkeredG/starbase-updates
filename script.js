@@ -72,8 +72,10 @@ function checkForClosureUpdates() {
             document.getElementById('closures').innerHTML = `<h3 class="launch">No planned closures</h3>`;
         }
 
-        if (localStorage.getItem('lastSeenClosure') !== closureData.toString() && localStorage.getItem('subscribed') === 'true') {
-            new Notification('Starbase Updates', {body: "Closure update"});
+        if (localStorage.getItem('lastSeenClosure') !== closureData.toString()) {
+            if (localStorage.getItem('subscribed') === 'true') {
+                new Notification('Starbase Updates', {body: "Closure update"});
+            }
             localStorage.setItem('lastSeenClosure', closureData);
         }
     });
@@ -81,7 +83,7 @@ function checkForClosureUpdates() {
 
 if (document.getElementById('closures')) {
     checkForClosureUpdates()
-    setInterval(checkForClosureUpdates, 5000)
+    setInterval(checkForClosureUpdates, 60000)
 }
 
 function createMayorOrder(datalist) {
@@ -187,7 +189,8 @@ if (permsButton) {
     });
 }
 
-// Check for notification update
+// Check for notification & website updates
+let loadedPage = null;
 function checkForUpdate() {
     fetch('notification.json', {cache: 'no-store'}).then(response => response.json()).then(data => {
         const lastSeenID = localStorage.getItem('lastSeenUpdate');
@@ -197,6 +200,14 @@ function checkForUpdate() {
                 new Notification('Starbase Updates', {body: data.message});
             }
             localStorage.setItem('lastSeenUpdate', data.id);
+        }
+
+        if (loadedPage === null) {
+            loadedPage = data.website_ver
+        } else if (loadedPage !== data.website_ver) {
+            document.getElementById("update-banner").textContent = "Page updated since last visit. Refresh for latest updates";
+            document.getElementById("update-banner").hidden = false;
+            localStorage.setItem('lastSeenPage', data.website_ver)
         }
     });
 }
