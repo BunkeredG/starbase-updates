@@ -20,14 +20,27 @@ let carouselData;
 function checkForLaunchUpdates() {
     fetch('launches.json', {cache: 'no-store'}).then(response => response.json()).then(data => {
         carouselData = data;
-        carousel(carouselData, "id1", "id2");
+
+        if (carouselData.length > 1) {
+            carousel(carouselData, "id1", "id2");
+        } else if (carouselData.length === 1) {
+            document.getElementById("id1").classList.add('visible');
+            startCountdown(carouselData[0][0], carouselData[0][1], "id1", carouselData[0][2])
+        } else if (carouselData.length === 0) {
+            document.getElementById("id1").classList.add('visible');
+            document.getElementById("id1").innerHTML = "No upcoming launches"
+        }
     });
 }
 checkForLaunchUpdates()
 setInterval(checkForLaunchUpdates, 60000)
 
 // Carousel logic
-const carouselTimer = setInterval(() => carousel(carouselData, "id1", "id2"), 5000);
+const carouselTimer = setInterval(() => {
+    if (carouselData.length > 1) {
+        carousel(carouselData, "id1", "id2")
+    }
+}, 5000);
 
 function carousel(data, id1, id2) {
     let current = data[carouselPick % data.length];
@@ -208,6 +221,10 @@ function checkForUpdate() {
             document.getElementById("update-banner").textContent = "Page updated since last visit. Refresh for latest updates";
             document.getElementById("update-banner").hidden = false;
             localStorage.setItem('lastSeenPage', data.website_ver)
+        }
+
+        if (loadedPage === data.website_ver) {
+            document.getElementById("ver-footer").innerHTML = `${data.website_ver}`;
         }
     });
 }
