@@ -172,36 +172,59 @@ summary {
     scale: 1;
 }
 
-summary:hover {
-    scale: 1.05;
+@media (hover: hover) and (pointer: fine) {
+    summary:hover {
+        scale: 1.05;
+    }
+
+    .mayor-order:hover {
+        color: #eb52a1;
+    }
+
+    .beach-closure:hover {
+        color: #f063d8;
+    }
+
+    summary:hover {
+        color: #b974f5;
+    }
+
+    .ship-hover:hover {
+        color: #eba652;
+    }
+
+    .booster-hover:hover {
+        color: #3e98f2;
+    }
+
+    .f-button:hover {
+        color: black;
+        background-color: white;
+        scale: 1.1;
+        cursor: pointer;
+    }
+
+    .grow-link:hover {
+        scale: 1.05;
+        color: rgb(80, 147, 235);
+    }
+
+    .expand11:hover {
+        cursor: pointer;
+        scale: 1.1;
+    }
+
+    .a-whiten:hover {
+        color: white;
+    }
 }
 
 .mayor-order {
     color: #e8258a;
 }
 
-.mayor-order:hover {
-    color: #eb52a1;
-}
-
 .beach-closure {
     color: #d73cbd;
-}
-
-.beach-closure:hover {
-    color: #f063d8;
-}
-
-summary:hover {
-    color: #b974f5;
-}
-
-.ship-hover:hover {
-    color: #eba652;
-}
-
-.booster-hover:hover {
-    color: #3e98f2;
 }
 
 pre {
@@ -213,6 +236,10 @@ pre {
     white-space: pre-wrap;
     word-wrap: break-word;
     padding-left: 1em;
+}
+
+.centered-div pre {
+    padding-left: 0;
 }
 
 b {
@@ -268,13 +295,6 @@ div {
     color: white;
     scale: 1;
     transition: 0.2s;
-}
-
-.f-button:hover {
-    color: black;
-    background-color: white;
-    scale: 1.1;
-    cursor: pointer;
 }
 
 .footer {
@@ -333,11 +353,6 @@ a {
     transition: 0.3s;
 }
 
-.grow-link:hover {
-    scale: 1.05;
-    color: rgb(80, 147, 235);
-}
-
 .complete {
     color: lightgreen;
 }
@@ -388,16 +403,7 @@ a {
     transition: 0.3s;
 }
 
-.expand11:hover {
-    cursor: pointer;
-    scale: 1.1;
-}
-
 .a-whiten {
     color: lightgray;
     transition: 0.3s;
-}
-
-.a-whiten:hover {
-    color: white;
 }
