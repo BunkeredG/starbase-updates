@@ -5,7 +5,7 @@ html {
 }
 
 body {
-    background-color: black;
+    background-color: rgb(5, 5, 5);
     color: white;
     margin: 0;
 }
@@ -36,11 +36,6 @@ h3 {
     margin-bottom: 0;
 }
 
-.centered-div h3 {
-    margin: 0;
-    padding-top: 10px;
-}
-
 .update-banner {
     text-align: center;
     margin-top: 20px;
@@ -67,7 +62,7 @@ h3 {
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.2s, visibility 0.2s;
-    background-color: rgb(20, 20, 20);
+    background-color: rgb(0, 0, 0);
     position: fixed;
     z-index: 14;
     top: 0;
@@ -168,13 +163,13 @@ summary {
     -webkit-user-select: none; /* Safari */
     -ms-user-select: none; /* IE 10 and IE 11 */
     user-select: none; /* Standard syntax */
-    transition: 0.5s;
+    transition: 0.4s;
     scale: 1;
 }
 
 @media (hover: hover) and (pointer: fine) {
     summary:hover {
-        scale: 1.05;
+        scale: 1.03;
     }
 
     .mayor-order:hover {
@@ -281,6 +276,24 @@ div {
     text-align: center;
     border: 3px white solid;
     border-radius: 10px;
+}
+
+.centered-div h3 {
+    margin: 0;
+    padding-top: 10px;
+}
+
+.alt-centered-div {
+    border: 3px gray solid;
+    padding-top: 5px;
+}
+
+.alt-centered-div h3 {
+    color: #802fc7;
+}
+
+.alt-centered-div pre {
+    color: lightgray;
 }
 
 .f-button {
