@@ -26,7 +26,7 @@ for i in range(3):
     samples.append(get_page())
     print(samples[i][1])
     if i < 2:
-        time.sleep(0.2)
+        time.sleep(20)
 
 text_orig, text = samples[0]
 for orig, t in samples:
