@@ -61,10 +61,17 @@ function carousel(data, id1, id2) {
 let closureData;
 let lastJSON = '';
 
+const purposesURL = "https://gist.githubusercontent.com/BunkeredG/0cb7a9f6c75d789042fa787f7d66ff28/raw/purposes";
+let purposes = {};
+
+function loadPurposes() {
+    return fetch(purposesURL + '?t=' + Date.now(), {cache: 'no-store'}).then(r => r.json()).then(data => {purposes = data}).catch(() => {});
+}
+
 // Closure logic
 function checkForClosureUpdates() {
-    fetch('closures.json', {cache: 'no-store'}).then(response => response.json()).then(data => {
-        const newJSON = JSON.stringify(data);
+    Promise.all([fetch('closures.json', {cache: 'no-store'}).then(response => response.json()), loadPurposes()]).then(([data]) => {
+        const newJSON = JSON.stringify([data, purposes]);
         if (newJSON === lastJSON) return;
         lastJSON = newJSON;
 
@@ -101,12 +108,13 @@ if (document.getElementById('closures')) {
 
 function createMayorOrder(datalist) {
     for (const item of datalist) {
+        const purpose = (purposes.mayor && purposes.mayor[item]) ?? purposes.mayor_default ?? 'Failed to load';
         const closureHTML = `
         <details>
         <summary class="dropdown-hover mayor-order">Mayor's Order</summary>
 <pre>
 <b>DATE</b> - ${item}
-<b>PURPOSE</b> - Closure of road & beach access for the testing/launch of Starship
+<b>PURPOSE</b> - ${purpose}
 </pre>
         </details>
         `
@@ -116,10 +124,14 @@ function createMayorOrder(datalist) {
 
 function createRoadClosures(datalist) {
     for (const item of datalist) {
+        const purpose = (purposes.road && purposes.road[item[1]]) ?? purposes.road_default ?? 'Failed to load';
         const closureHTML = `
         <details>
         <summary class="dropdown-hover">Road Closure (${item[0]})</summary>
-        <pre><b>DATE</b> - ${item[1]}</pre>
+<pre>
+<b>DATE</b> - ${item[1]}
+<b class="uncertain">PURPOSE</b> - ${purpose}
+</pre>
         </details>
         `
         document.getElementById('closures').insertAdjacentHTML('beforeend', closureHTML);
@@ -128,10 +140,14 @@ function createRoadClosures(datalist) {
 
 function createBeachClosures(datalist) {
     for (const item of datalist) {
+        const purpose = (purposes.beach && purposes.beach[item]) ?? purposes.beach_default ?? 'Failed to load';
         const closureHTML = `
         <details>
         <summary class="dropdown-hover beach-closure">Beach Closure</summary>
-        <pre><b>DATE</b> - ${item}</pre>
+<pre>
+<b>DATE</b> - ${item}
+<b class="uncertain"> PURPOSE</b> - ${purpose}
+</pre>
         </details>
         `
         document.getElementById('closures').insertAdjacentHTML('beforeend', closureHTML);
@@ -224,7 +240,7 @@ function checkForUpdate() {
         }
 
         if (loadedPage === data.website_ver) {
-            document.getElementById("ver-footer").innerHTML = `${data.website_ver}`;
+            document.getElementById("ver-header").innerHTML = `${data.website_ver}`;
         }
     });
 }
@@ -300,11 +316,6 @@ function startCountdown(openDate, closeDate, id, name) {
         let diff;
 
         if (closeDiff < 0) {
-            if (localStorage.getItem('closeNotify-' + notifyKey) !== 'true' && localStorage.getItem('subscribed') === 'true' && Notification.permission === 'granted') {
-                new Notification('Starbase Updates', {body: `Launch window for ${name} is closed`});
-                localStorage.setItem('closeNotify-' + notifyKey, 'true');
-            }
-
             document.getElementById(id).innerHTML = `${name}:<br><span class="countdown">(Window Closed)</span>`;
             document.querySelector(`#${id} .countdown`).style.color = 'rgb(228, 17, 17)';
             

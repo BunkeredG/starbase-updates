@@ -133,6 +133,28 @@ h3 {
     right: 15px;
 }
 
+.n-item {
+    font-family: 'Inter';
+    font-weight: 400;
+    font-size: 20px;
+    margin-top: 0;
+    margin-bottom: 10px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    padding-left: 1em;
+    margin: 0;
+}
+
+@media (max-width: 600px) {
+    .n-item {
+        margin-bottom: 1em;
+    }
+}
+
+.n-date {
+    color: rgb(150, 150, 150);
+}
+
 .sub-detail {
     display: block;
     color: rgb(75, 75, 75);
@@ -358,6 +380,11 @@ a {
 .a-none {
     color: auto;
     text-decoration-color: auto;
+}
+
+.a-sub {
+    color: rgb(100, 100, 100);
+    text-decoration-color: rgb(100, 100, 100);
 }
 
 .grow-link {
