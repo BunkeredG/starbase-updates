@@ -234,12 +234,16 @@ function checkForUpdate() {
         if (loadedPage === null) {
             loadedPage = data.website_ver
         } else if (loadedPage !== data.website_ver) {
-            document.getElementById("update-banner").textContent = "Page updated since last visit. Refresh for latest updates";
-            document.getElementById("update-banner").hidden = false;
-            localStorage.setItem('lastSeenPage', data.website_ver)
+            const banner = document.getElementById("update-banner");
+            if (banner) {
+                banner.textContent = "Page updated since last visit. Refresh for latest updates";
+                banner.hidden = false;
+                banner.onclick = () => location.reload();
+                localStorage.setItem('lastSeenPage', data.website_ver);
+            }
         }
 
-        if (loadedPage === data.website_ver) {
+        if (document.getElementById("ver-header") && loadedPage === data.website_ver) {
             document.getElementById("ver-header").innerHTML = `${data.website_ver}`;
         }
     });
