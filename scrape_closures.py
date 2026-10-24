@@ -27,7 +27,7 @@ for i in range(3):
     samples.append(get_page())
     print(samples[i][1])
     if i < 2:
-        time.sleep(0.5)
+        time.sleep(15)
 
 # Prefer any test that has a closure
 text_orig, text = samples[0]
@@ -107,7 +107,14 @@ else:
     roadInter = road_text.split("Description: ")[1:] # Splits to obtain only the exact road closures
     for closure in roadInter:
         closureL = closure.split("Date: ") # One side is description (Production to Massey's), other is date (October 4th ...)
-        closureL[0] = "->".join(closureL[0].split("to")) # "Production to Massey's" to "Production -> Massey's"
+        closureL[0] = "➜".join(closureL[0].split("to")) # "Production to Masseys" to "Production ➜ Masseys"
+
+        # corrects punctuation
+        closureL[0] = closureL[0].split(" ") # ["Production", "➜", "Masseys"]
+        for i, item in enumerate(closureL[0]):
+            if item == "Masseys":
+                closureL[0][i] = "Massey's"
+        closureL[0] = " ".join(closureL[0])
 
         # adds ordinals
         closureL[1] = closureL[1].split(" ") # ["October", "4", "10:00", "AM", ...]
