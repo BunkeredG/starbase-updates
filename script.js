@@ -124,7 +124,10 @@ function createMayorOrder(datalist) {
 
 function createRoadClosures(datalist) {
     for (const item of datalist) {
-        const purpose = (purposes.road && purposes.road[item[1]]) ?? purposes.road_default ?? 'Failed to load';
+        const split = item[0].split("\u279c ");
+        const keycheck = `${split[1]} ${item[1]}`;
+
+        const purpose = (purposes.road && purposes.road[keycheck]) ?? purposes.road_default ?? 'Failed to load';
         const closureHTML = `
         <details>
         <summary class="dropdown-hover">Road Closure (${item[0]})</summary>
