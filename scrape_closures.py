@@ -27,7 +27,7 @@ for i in range(3):
     samples.append(get_page())
     print(samples[i][1])
     if i < 2:
-        time.sleep(15)
+        time.sleep(.15)
 
 # Prefer any test that has a closure
 text_orig, text = samples[0]
@@ -45,37 +45,39 @@ if "Primary" not in mayor_text:
 else:
     mayorInter = mayor_text.split("Primary Closure Period")[1:] # Takes text after the string "Primary Closure Period"
 
-    # Gets only the active date, ignoring alternates
-    mayor_re = re.search(r'(.*)Alternate', mayorInter[0])
-    re_text = mayor_re.group(1)
+    # Ensures that the order has not been revoked
+    if "Revocation" not in mayorInter[0]:
+        # Gets only the active date, ignoring alternates
+        mayor_re = re.search(r'(.*)Alternate', mayorInter[0])
+        re_text = mayor_re.group(1)
 
-    # Gets only the alternate date
-    alt_mayor_re = re.search(r'Alternate Dates(.*)', mayorInter[0])
-    alt_re_text = alt_mayor_re.group(1)
+        # Gets only the alternate date
+        alt_mayor_re = re.search(r'Alternate Dates(.*)', mayorInter[0])
+        alt_re_text = alt_mayor_re.group(1)
 
-    # Gets only the date, "10/24/26 from ..." -> "10/24/26"
-    date_re = re.search(r'(.*) f', re_text)
-    date_str = date_re.group(1)
-    # Makes date comparable by removing everything except integers
-    date_check = re.sub(r'[^0-9]', '', date_str)
-    ls_date_check = date_str.split("/")
+        # Gets only the date, "10/24/26 from ..." -> "10/24/26"
+        date_re = re.search(r'(.*) f', re_text)
+        date_str = date_re.group(1)
+        # Makes date comparable by removing everything except integers
+        date_check = re.sub(r'[^0-9]', '', date_str)
+        ls_date_check = date_str.split("/")
 
-    # Exact same thing for the alternate date
-    alt_date_re = re.search(r'(.*) f', alt_re_text)
-    alt_date_str = alt_date_re.group(1)
-    alt_date_check = re.sub(r'[^0-9]', '', alt_date_str)
-    alt_ls_date_check = alt_date_str.split("/")
+        # Exact same thing for the alternate date
+        alt_date_re = re.search(r'(.*) f', alt_re_text)
+        alt_date_str = alt_date_re.group(1)
+        alt_date_check = re.sub(r'[^0-9]', '', alt_date_str)
+        alt_ls_date_check = alt_date_str.split("/")
 
-    # Checks the current date vs the order date as an int (102426 > 102326) to determine whether the order is outdated or not
-    # Since 103126 > 11326 (despite 11/3/26 being after 10/31/26), months are compared on their own as well.
-    # Since 123126 > 1127 and 12 > 1, years are compared on their own as well.
-    # Note the strict inequality as if the months & years are the same then the straight date comparison will be accurate.
-    current_month = int(datetime.now(timezone.utc).strftime('%-m'))
-    current_year = int(datetime.now(timezone.utc).strftime("%y"))
-    if int(date_check) >= int(now) or int(ls_date_check[0]) > current_month or int(ls_date_check[2]) > current_year:
-        mayorL.append(re_text)
-    elif int(alt_date_check) >= int(now) or int(alt_ls_date_check[0]) > current_month or int(ls_date_check[2]) > current_year:
-        mayorL.append(alt_re_text)
+        # Checks the current date vs the order date as an int (102426 > 102326) to determine whether the order is outdated or not
+        # Since 103126 > 11326 (despite 11/3/26 being after 10/31/26), months are compared on their own as well.
+        # Since 123126 > 1127 and 12 > 1, years are compared on their own as well.
+        # Note the strict inequality as if the months & years are the same then the straight date comparison will be accurate.
+        current_month = int(datetime.now(timezone.utc).strftime('%-m'))
+        current_year = int(datetime.now(timezone.utc).strftime("%y"))
+        if int(date_check) >= int(now) or int(ls_date_check[0]) > current_month or int(ls_date_check[2]) > current_year:
+            mayorL.append(re_text)
+        elif int(alt_date_check) >= int(now) or int(alt_ls_date_check[0]) > current_month or int(ls_date_check[2]) > current_year:
+            mayorL.append(alt_re_text)
 
     # If the list of active mayor's orders remains empty after this, append "None"
     if mayorL == []:
