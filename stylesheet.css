@@ -155,6 +155,11 @@ h3 {
     color: rgb(150, 150, 150);
 }
 
+.b {
+    font-weight: 700;
+    color: rgb(175, 175, 175);
+}
+
 .sub-detail {
     display: block;
     color: rgb(75, 75, 75);
