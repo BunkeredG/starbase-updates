@@ -27,7 +27,7 @@ for i in range(3):
     samples.append(get_page())
     print(samples[i][1])
     if i < 2:
-        time.sleep(.15)
+        time.sleep(15)
 
 # Prefer any test that has a closure
 text_orig, text = samples[0]
