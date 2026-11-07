@@ -369,6 +369,13 @@ div {
     margin: 0;
 }
 
+.p-source {
+    color: rgb(75, 75, 75);
+    font-size: 10px;
+    display: block;
+    padding-bottom: 5px;
+}
+
 .p-sub {
     color: rgb(100, 100, 100);
     font-size: 15px;

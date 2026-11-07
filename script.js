@@ -1,5 +1,5 @@
 // Dedicated Starship flight countdown
-const starship_open = format("09/28/12/49");
+const starship_open = format("11/13/22/45");
 if (document.getElementById('starship')) {
     startCountdownFixed(starship_open, 'starship');
 }
