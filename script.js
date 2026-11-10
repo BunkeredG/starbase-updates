@@ -1,8 +1,50 @@
 // Dedicated Starship flight countdown
 const starship_open = format("11/13/22/45");
+const starship_close = format("11/14/00/00");
+const backup_open = format("11/14/22/45");
+const backup_close = format("11/15/00/40");
 if (document.getElementById('starship')) {
     startCountdownFixed(starship_open, 'starship');
 }
+
+// Ordinals
+function ordinal(number) {
+    const rule = new Intl.PluralRules('en-US', {type: 'ordinal'}).select(number);
+    const suffix = {one: 'st', two: 'nd', three: 'rd', other: 'th'}[rule];
+    return `${number}${suffix}`;
+}
+
+// Local time converter
+function dateToLocal(date, type, closedate=null) {
+    const d = new Date(date);
+
+    const weekday = d.toLocaleString('en-US', {weekday: 'long'});
+    const month = d.toLocaleString('en-US', {month: 'long'});
+    const day = ordinal(d.getDate());
+    const time = d.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', hour12: false});
+
+    if (type === 'full') {
+        const d2 = new Date(closedate);
+        const secondtime = d2.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', hour12: false});
+        return `${weekday}, ${month} ${day}, ${time}-${secondtime}`;
+    } else if (type === 'alter') {
+        const d2 = new Date(closedate);
+        const secondtime = d2.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', hour12: false});
+        return `${month} ${day}, ${time}-${secondtime}`;
+    } else if (type === 'mini') {
+        return `${month} ${day} at ${time}`;
+    }
+}
+
+// Regularly check timezone
+function doTimeChanges() {
+    document.getElementById('full-main').textContent = dateToLocal(starship_open, 'full', starship_close);
+    document.getElementById('full-alter').textContent = dateToLocal(backup_open, 'alter', backup_close);
+    document.getElementById('mini').textContent = dateToLocal(starship_open, 'mini');
+}
+doTimeChanges();
+setInterval(doTimeChanges, 60000);
+
 
 // Date converter (MM/DD/HH/mm in UTC)
 function format(date) {
