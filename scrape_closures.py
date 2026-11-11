@@ -43,41 +43,55 @@ mayorL = []
 if "Primary" not in mayor_text:
     mayorL.append("None") # "None" if there are no active orders
 else:
-    mayorInter = mayor_text.split("Primary Closure Period")[1:] # Takes text after the string "Primary Closure Period"
+    mayorFull = mayor_text.split("Primary Closure Period")[1:] # Takes text after the string "Primary Closure Period"
+    # Splits order if there are two closures in one
+    if "and" in mayorFull[0]:
+        mayorInter = mayorFull[0].split(" and ")
+    else:
+        mayorInter = mayorFull
 
-    # Ensures that the order has not been revoked
-    if "Revocation" not in mayorInter[0]:
-        # Gets only the active date, ignoring alternates
-        mayor_re = re.search(r'(.*)Alternate', mayorInter[0])
-        re_text = mayor_re.group(1)
+    # Loops over each order individually
+    for order in mayorInter:
+        # Ensures that the order has not been revoked
+        if "Revocation" not in order:
+            # Gets only the active date, ignoring alternates (only if the alternate is present in the checked order)
+            mayor_re = re.search(r'(.*)Alternate', order)
+            if mayor_re:
+                re_text = mayor_re.group(1)
+            else:
+                re_text = order
 
-        # Gets only the alternate date
-        alt_mayor_re = re.search(r'Alternate Dates(.*)', mayorInter[0])
-        alt_re_text = alt_mayor_re.group(1)
+            # Gets only the alternate date (only if the alternate is present in the checked order)
+            alt_mayor_re = re.search(r'Alternate Dates(.*)', order)
+            if alt_mayor_re:
+                alt_re_text = alt_mayor_re.group(1)
+            else:
+                alt_re_text = '' # sets to an empty string to replicate the case where Alternate Dates exists but none are present
 
-        # Gets only the date, "10/24/26 from ..." -> "10/24/26"
-        date_re = re.search(r'(.*) f', re_text)
-        date_str = date_re.group(1)
-        # Makes date comparable by removing everything except integers
-        date_check = re.sub(r'[^0-9]', '', date_str)
-        ls_date_check = date_str.split("/")
+            # Gets only the date, "10/24/26 from ..." -> "10/24/26"
+            date_re = re.search(r'(.*) f', re_text)
+            date_str = date_re.group(1)
+            # Makes date comparable by removing everything except integers
+            date_check = re.sub(r'[^0-9]', '', date_str)
+            ls_date_check = date_str.split("/")
 
-        # Exact same thing for the alternate date
-        alt_date_re = re.search(r'(.*) f', alt_re_text)
-        alt_date_str = alt_date_re.group(1)
-        alt_date_check = re.sub(r'[^0-9]', '', alt_date_str)
-        alt_ls_date_check = alt_date_str.split("/")
+            # Ensures an alternate date is mentioned, then does the exact same thing as the primary date
+            if alt_re_text != '':
+                alt_date_re = re.search(r'(.*) f', alt_re_text)
+                alt_date_str = alt_date_re.group(1)
+                alt_date_check = re.sub(r'[^0-9]', '', alt_date_str)
+                alt_ls_date_check = alt_date_str.split("/")
 
-        # Checks the current date vs the order date as an int (102426 > 102326) to determine whether the order is outdated or not
-        # Since 103126 > 11326 (despite 11/3/26 being after 10/31/26), months are compared on their own as well.
-        # Since 123126 > 1127 and 12 > 1, years are compared on their own as well.
-        # Note the strict inequality as if the months & years are the same then the straight date comparison will be accurate.
-        current_month = int(datetime.now(timezone.utc).strftime('%-m'))
-        current_year = int(datetime.now(timezone.utc).strftime("%y"))
-        if int(date_check) >= int(now) or int(ls_date_check[0]) > current_month or int(ls_date_check[2]) > current_year:
-            mayorL.append(re_text)
-        elif int(alt_date_check) >= int(now) or int(alt_ls_date_check[0]) > current_month or int(ls_date_check[2]) > current_year:
-            mayorL.append(alt_re_text)
+            # Checks the current date vs the order date as an int (102426 > 102326) to determine whether the order is outdated or not
+            # Since 103126 > 11326 (despite 11/3/26 being after 10/31/26), months are compared on their own as well.
+            # Since 123126 > 1127 and 12 > 1, years are compared on their own as well.
+            # Note the strict inequality as if the months & years are the same then the straight date comparison will be accurate.
+            current_month = int(datetime.now(timezone.utc).strftime('%-m'))
+            current_year = int(datetime.now(timezone.utc).strftime("%y"))
+            if int(date_check) >= int(now) or int(ls_date_check[0]) > current_month or int(ls_date_check[2]) > current_year:
+                mayorL.append(re_text)
+            elif alt_mayor_re and int(alt_date_check) >= int(now) or int(alt_ls_date_check[0]) > current_month or int(ls_date_check[2]) > current_year:
+                mayorL.append(alt_re_text)
 
     # If the list of active mayor's orders remains empty after this, append "None"
     if mayorL == []:
