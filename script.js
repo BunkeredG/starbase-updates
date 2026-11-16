@@ -1,6 +1,6 @@
 // Dedicated Starship flight countdown
-const starship_open = format("11/13/22/45");
-const starship_close = format("11/14/00/00");
+const starship_open = format("11/13/22/47");
+const starship_close = format("11/14/21/19");
 const backup_open = format("11/14/22/45");
 const backup_close = format("11/15/00/40");
 if (document.getElementById('starship')) {
@@ -10,7 +10,7 @@ if (document.getElementById('starship')) {
 // Ordinals
 function ordinal(number) {
     const rule = new Intl.PluralRules('en-US', {type: 'ordinal'}).select(number);
-    const suffix = {one: 'st', two: 'nd', three: 'rd', other: 'th'}[rule];
+    const suffix = {one: 'st', two: 'nd', few: 'rd', other: 'th'}[rule];
     return `${number}${suffix}`;
 }
 
@@ -31,16 +31,30 @@ function dateToLocal(date, type, closedate=null) {
         const d2 = new Date(closedate);
         const secondtime = d2.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', hour12: false});
         return `${month} ${day}, ${time}-${secondtime}`;
-    } else if (type === 'mini') {
+    } else if (type === 'condensed') {
         return `${month} ${day} at ${time}`;
+    } else if (type === 'mini') {
+        return `${time}`;
     }
 }
 
 // Regularly check timezone
 function doTimeChanges() {
-    document.getElementById('full-main').textContent = dateToLocal(starship_open, 'full', starship_close);
-    document.getElementById('full-alter').textContent = dateToLocal(backup_open, 'alter', backup_close);
-    document.getElementById('mini').textContent = dateToLocal(starship_open, 'mini');
+    if (document.getElementById('full-main')) {
+        document.getElementById('full-main').textContent = dateToLocal(starship_open, 'full', starship_close);
+    }
+
+    if (document.getElementById('full-alter')) {
+        document.getElementById('full-alter').textContent = dateToLocal(starship_open, 'alter', starship_close);
+    }
+
+    if (document.getElementById('condensed')) {
+        document.getElementById('condensed').textContent = dateToLocal(starship_open, 'condensed', starship_close);
+    }
+
+    if (document.getElementById('mini')) {
+        document.getElementById('mini').textContent = dateToLocal(starship_open, 'mini', starship_close);
+    }
 }
 doTimeChanges();
 setInterval(doTimeChanges, 60000);
@@ -141,11 +155,15 @@ function checkForClosureUpdates() {
             localStorage.setItem('lastSeenClosure', closureData);
         }
     });
+
+    const current = new Date();
+    const time = current.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', hour12: false});
+    document.getElementById('update').innerHTML = `${time}`;
 }
 
 if (document.getElementById('closures')) {
-    checkForClosureUpdates()
-    setInterval(checkForClosureUpdates, 60000)
+    checkForClosureUpdates();
+    setInterval(checkForClosureUpdates, 60000);
 }
 
 function createMayorOrder(datalist) {

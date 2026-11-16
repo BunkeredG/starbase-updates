@@ -40,18 +40,27 @@ now = datetime.now(timezone.utc).strftime('%-m%-d%y') # Gets the current time (M
 mayor_prune = re.search(r'Order(.+?)Previous', text_orig) # Search for mayor's orders and removes previous orders
 mayor_text = mayor_prune.group(1)
 mayorL = []
+mayorInter = []
 if "Primary" not in mayor_text:
     mayorL.append("None") # "None" if there are no active orders
 else:
-    mayorFull = mayor_text.split("Primary Closure Period")[1:] # Takes text after the string "Primary Closure Period"
+    mayorFull = mayor_text.split("Pursuant")[1:] # Takes text after the string "Primary Closure Period"
+    print("orders")
     # Splits order if there are two closures in one
-    if "and" in mayorFull[0]:
-        mayorInter = mayorFull[0].split(" and ")
-    else:
-        mayorInter = mayorFull
+    for order in mayorFull:
+        order = order.split("Primary Closure Period")[1]
+        if "Revocation" not in order:
+            print(order, end="\n\n")
+            if "and" in order:
+                order = order.split(" and ")
+                mayorInter.append(order[0])
+                mayorInter.append(order[1])
+            else:
+                mayorInter.append(order)
 
     # Loops over each order individually
     for order in mayorInter:
+        print(order)
         # Ensures that the order has not been revoked
         if "Revocation" not in order:
             # Gets only the active date, ignoring alternates (only if the alternate is present in the checked order)
@@ -90,7 +99,7 @@ else:
             current_year = int(datetime.now(timezone.utc).strftime("%y"))
             if int(date_check) >= int(now) or int(ls_date_check[0]) > current_month or int(ls_date_check[2]) > current_year:
                 mayorL.append(re_text)
-            elif alt_mayor_re and int(alt_date_check) >= int(now) or int(alt_ls_date_check[0]) > current_month or int(ls_date_check[2]) > current_year:
+            elif alt_mayor_re and (int(alt_date_check) >= int(now) or int(alt_ls_date_check[0]) > current_month or int(alt_ls_date_check[2]) > current_year):
                 mayorL.append(alt_re_text)
 
     # If the list of active mayor's orders remains empty after this, append "None"

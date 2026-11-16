@@ -310,6 +310,10 @@ div {
     padding-top: 10px;
 }
 
+.successful {
+    border: 3px lightgreen solid;
+}
+
 .alt-centered-div {
     border: 3px gray solid;
     padding-top: 5px;
