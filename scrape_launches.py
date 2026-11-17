@@ -16,10 +16,11 @@ response = requests.get(url)
 soup = BeautifulSoup(response.text, 'html.parser')
 text_orig = soup.get_text()
 
-# Makes sure that an advisory is present
-if "No message." not in text_orig:
-    # Prune response to only include upcoming launches
-    purged = re.search(r'REENTRY:(.*)FLIGHT CHECK', text_orig, re.DOTALL)
+print(text_orig)
+
+# Prune response to only include upcoming launches
+purged = re.search(r'REENTRY:(.*)FLIGHT CHECK', text_orig, re.DOTALL)
+if purged:
     launch_text = purged.group(1)
 
     # Formats dates into a JS friendly layout
