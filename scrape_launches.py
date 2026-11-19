@@ -54,10 +54,16 @@ if purged:
                                 mission = f"{word.capitalize()} {number.capitalize()}"
                             else:
                                 mission = f"{word.capitalize()} {number}"
-                        # WORD-## / .., remove characters past the /
+                        # WORD ## / .., remove characters past the /
+                        elif " /" in number:
+                            prune = re.search(r'([^,]+) /', number)
+                            number = prune.group(1)
+                            mission = f"{word}-{number}"
+                        # WORD ##/..., remove characters past the /
                         elif "/" in number:
-                            prune = re.search(r'([^,]+) /', mission)
-                            mission = prune.group(1)
+                            prune = re.search(r'([^,]+)/', number)
+                            number = prune.group(1)
+                            mission = f"{word}-{number}"
 
                         # Full caps
                         else:
@@ -67,6 +73,17 @@ if purged:
                             # Full caps word with number following
                             else:
                                 mission = f"{word} {number.capitalize()}"
+
+                    # WORD-##
+                    elif '-' in mission:
+                        # WORD-##/... -> WORD-##
+                        if "/" in mission:
+                            prune = re.search(r'([^,]+)/', mission)
+                            mission = prune.group(1)
+                        # WORD-## / ... -> WORD-##
+                        elif " /" in mission:
+                            prune = re.search(r'([^,]+) /', mission)
+                            mission = prune.group(1)
 
             # Formatting for Transporter missions
             elif "TRANSPORTER" in line:
